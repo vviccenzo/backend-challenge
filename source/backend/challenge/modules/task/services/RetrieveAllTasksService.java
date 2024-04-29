@@ -11,13 +11,13 @@ import java.util.List;
 @Singleton
 public class RetrieveAllTasksService implements IRetrieveAllTasksService {
 
+	private final ITaskRepository taskRepository;
+
 	@Inject
 	public RetrieveAllTasksService(final ITaskRepository taskRepository) {
 		this.taskRepository = taskRepository;
 	}
 	
-	private ITaskRepository taskRepository;
-
 	@Override
 	public List<Task> execute() {
 		return this.taskRepository.show();

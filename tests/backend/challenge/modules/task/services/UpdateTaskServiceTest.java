@@ -13,6 +13,13 @@ public class UpdateTaskServiceTest {
 
 	private IUpdateTaskService updateTaskService;
 
+	@Before
+	public void init() {
+		final ITaskRepository taskRepository = new TaskRepository();
+
+		updateTaskService = new UpdateTaskService(taskRepository);
+	}
+
 	@Test
 	public void shouldBeAbleToUpdateTask() {
 		/*

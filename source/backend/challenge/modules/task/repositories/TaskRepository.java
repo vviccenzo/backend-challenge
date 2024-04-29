@@ -48,7 +48,12 @@ public class TaskRepository implements ITaskRepository {
 
 	@Override
 	public Task updateTaskProgress(Long taskId, TaskProgressView taskProgressView) {
-		tasks.stream().filter(task -> task.getId().equals(taskId) && taskProgressView.validateIfProgressIsValid())
+		boolean isProgressValid = taskProgressView.validateIfProgressIsValid();
+		if(!isProgressValid) {
+			throw new RuntimeException("Progress % invalid.");
+		}
+
+		tasks.stream().filter(task -> task.getId().equals(taskId))
 				.forEach(task -> {
 					int progress = taskProgressView.getProgress();
 					task.setProgress(progress);
