@@ -1,46 +1,68 @@
 package backend.challenge.modules.task.repositories;
 
 import backend.challenge.modules.task.dtos.TaskDTO;
+import backend.challenge.modules.task.enums.TaskStatus;
+import backend.challenge.modules.task.infra.http.views.TaskProgressView;
 import backend.challenge.modules.task.models.Task;
 
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public class TaskRepository implements ITaskRepository {
 
-	@Override
-	public Task index(final Long taskId) {
-		// TODO: Criar método responsável por retornar tarefa por id
+	private final List<Task> tasks = new ArrayList<>();
 
-		return null;
+	@Override
+	public Task index(Long taskId) {
+		return findTaskById(taskId).orElseThrow(() -> new RuntimeException("Task with id: " + taskId + " not found."));
 	}
 
 	@Override
 	public List<Task> show() {
-		// TODO: Criar método responsável por retornar todas as tarefas
-
-		return null;
+		return tasks;
 	}
 
 	@Override
-	public Task create(final TaskDTO taskDTO) {
-		// TODO: Criar método responsável por criar uma tarefa
-
-		return null;
+	public Task create(TaskDTO taskDTO) {
+		Task task = new Task(taskDTO);
+		tasks.add(task);
+		return task;
 	}
 
 	@Override
-	public Task update(final Task task) {
-		// TODO: Criar método responsável por atualizar uma tarefa
-
-		return null;
+	public Task update(TaskDTO taskDTO, Long taskId) {
+		tasks.stream().filter(task -> task.getId().equals(taskId)).forEach(task -> {
+			task.setDescription(taskDTO.getDescription());
+			task.setTitle(taskDTO.getTitle());
+		});
+		return this.index(taskId);
 	}
 
 	@Override
-	public void delete(final Long taskId) {
- 		// TODO: Criar método responsável por deletar tarefa por id
+	public void delete(Long taskId) {
+		tasks.removeIf(task -> task.getId().equals(taskId));
+	}
 
+	@Override
+	public Task updateTaskProgress(Long taskId, TaskProgressView taskProgressView) {
+		tasks.stream().filter(task -> task.getId().equals(taskId) && taskProgressView.validateIfProgressIsValid())
+				.forEach(task -> {
+					int progress = taskProgressView.getProgress();
+					task.setProgress(progress);
+
+					if (progress == 100) {
+						task.setStatus(TaskStatus.COMPLETE);
+					}
+				});
+
+		return this.index(taskId);
+	}
+
+	private Optional<Task> findTaskById(Long taskId) {
+		return tasks.stream().filter(task -> task.getId().equals(taskId)).findFirst();
 	}
 
 }

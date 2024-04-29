@@ -9,4 +9,8 @@ public class TaskProgressView {
 
 	private int progress;
 
+	public boolean validateIfProgressIsValid() {
+		return this.progress >= 0 && this.progress <= 100;
+	}
+
 }
