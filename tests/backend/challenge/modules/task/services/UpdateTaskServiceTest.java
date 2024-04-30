@@ -1,51 +1,91 @@
 package backend.challenge.modules.task.services;
 
+import backend.challenge.modules.task.dtos.TaskDTO;
+import backend.challenge.modules.task.enums.TaskStatus;
+import backend.challenge.modules.task.models.Task;
 import backend.challenge.modules.task.repositories.ITaskRepository;
-import backend.challenge.modules.task.repositories.TaskRepository;
 import kikaha.core.test.KikahaRunner;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-@RunWith( KikahaRunner.class )
+import java.util.Date;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(KikahaRunner.class)
 public class UpdateTaskServiceTest {
 
-	private IUpdateTaskService updateTaskService;
+    private IUpdateTaskService updateTaskService;
 
-	@Before
-	public void init() {
-		final ITaskRepository taskRepository = new TaskRepository();
+    @Mock
+    private ITaskRepository taskRepository;
 
-		updateTaskService = new UpdateTaskService(taskRepository);
-	}
+    private TaskDTO existingTask;
+    private TaskDTO updatedTask;
+    private TaskDTO taskAfterUpdate;
+    private TaskDTO taskBeforeUpdate;
 
-	@Test
-	public void shouldBeAbleToUpdateTask() {
-		/*
-			TODO:  Para que esse teste passe, sua aplicação deve permitir que sejam
-		         alterados apenas os campos `title` e `observation`.
-		*/
-	}
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        updateTaskService = new UpdateTaskService(taskRepository);
+        existingTask = new TaskDTO("title", "description");
+        updatedTask = new TaskDTO("title alterado", "description alterado");
 
-	@Test
-	public void shouldNotBeAbleToUpdateATaskThatDoesNotExist() {
-		/*
-			TODO: Para que esse teste passe, você deve validar na sua rota de update se
-			 			o id da tarefa enviada pela url existe ou não. Caso não exista, retornar um erro com status 400.
-		*/
-	}
+        taskBeforeUpdate = createTask(1L, "title", "description", 0, TaskStatus.PROGRESS, new Date());
+        taskAfterUpdate = createTask(1L, "title alterado", "description alterado", 0, TaskStatus.PROGRESS, new Date());
+    }
 
-	@Test
-	public void shouldNotBeAbleToUpdateTaskStatusManually() {
-		/*
-			TODO:  Para que esse teste passe, você não deve permitir que sua rota de update
-						 altere diretamente o `status` dessa tarefa, mantendo o mesmo status que a tarefa
-						 já possuía antes da atualização. Isso porque o único lugar que deve atualizar essa informação
-						 é a rota responsável por alterar o progresso da tarefa.
+    @Test
+    public void shouldBeAbleToUpdateTaskTitleAndDescription() {
+        when(taskRepository.index(1L)).thenReturn(taskBeforeUpdate);
+        when(this.taskRepository.update(updatedTask, 1L)).thenReturn(taskAfterUpdate);
+        TaskDTO updated = updateTaskService.execute(updatedTask, 1L);
 
-		 */
-	}
+        assertNotEquals("O título da tarefa deve ser alterado", existingTask.getTitle(), updated.getTitle());
+        assertNotEquals("A descrição da tarefa deve ser alterada", existingTask.getDescription(), updated.getDescription());
+    }
 
+    @Test
+    public void shouldNotBeAbleToUpdateNonExistingTask() {
+        long nonExistingTaskId = 5101162744757410452L;
+        when(taskRepository.index(nonExistingTaskId)).thenReturn(null);
 
+        TaskDTO task = taskRepository.update(updatedTask, nonExistingTaskId);
+        assertNull(task);
+    }
+
+    @Test
+    public void shouldNotBeAbleToUpdateATaskThatDoesNotExist() {
+        long nonExistingTaskId = 5101162744757410452L;
+        when(taskRepository.index(nonExistingTaskId)).thenReturn(null);
+
+        updateTaskService.execute(updatedTask, nonExistingTaskId);
+    }
+
+    @Test
+    public void shouldNotBeAbleToUpdateTaskStatusManually() {
+        when(taskRepository.index(1L)).thenReturn(taskBeforeUpdate);
+        when(this.taskRepository.update(updatedTask, 1L)).thenReturn(taskBeforeUpdate);
+
+        TaskDTO updated = updateTaskService.execute(updatedTask, 1L);
+
+        assertEquals("O status da tarefa deve permanecer o mesmo", taskBeforeUpdate.getStatus(), updated.getStatus());
+    }
+
+    public TaskDTO createTask(long id, String title, String description, int progress, TaskStatus status, Date createdAt) {
+        Task task = new Task();
+        task.setId(id);
+        task.setTitle(title);
+        task.setDescription(description);
+        task.setProgress(progress);
+        task.setStatus(status);
+        task.setCreatedAt(createdAt);
+        return new TaskDTO(task);
+    }
 }

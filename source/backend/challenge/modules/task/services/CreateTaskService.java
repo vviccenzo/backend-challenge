@@ -18,7 +18,7 @@ public class CreateTaskService implements ICreateTaskService {
 	}
 
 	@Override
-	public Task execute(TaskDTO taskDTO) {
+	public TaskDTO execute(TaskDTO taskDTO) {
 		return this.taskRepository.create(taskDTO);
 	}
 

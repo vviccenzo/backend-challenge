@@ -8,16 +8,16 @@ import java.util.List;
 
 public interface ITaskRepository {
 
-	Task index(Long taskId);
+	TaskDTO index(Long taskId);
 
-	List<Task> show();
+	List<TaskDTO> show();
 
-	Task create(TaskDTO taskDTO);
+	TaskDTO create(TaskDTO taskDTO);
 
-	Task update(TaskDTO taskDTO, Long taskId);
+	TaskDTO update(TaskDTO taskDTO, Long taskId);
 
 	void delete(Long taskId);
 
-	Task updateTaskProgress(Long taskId, TaskProgressView taskProgressView);
+	TaskDTO updateTaskProgress(Long taskId, TaskProgressView taskProgressView);
 	
 }

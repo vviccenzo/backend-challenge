@@ -9,6 +9,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,24 +23,26 @@ public class RetrieveAllTasksServiceTest {
 
     private IRetrieveAllTasksService retrieveAllTasksService;
 
-    private List<Task> tasksCreated = new ArrayList<>();
+    @Mock
+    private ITaskRepository taskRepository;
+
+    private List<TaskDTO> tasksCreated = new ArrayList<>();
 
     @Before
     public void init() {
-        final ITaskRepository taskRepository = new TaskRepository();
-
+        MockitoAnnotations.initMocks(this);
         retrieveAllTasksService = new RetrieveAllTasksService(taskRepository);
         tasksCreated = generateRandomTasks(10);
     }
 
     @Test
     public void shouldBeAbleToListTheTasks() {
-        when(retrieveAllTasksService.execute()).thenReturn(tasksCreated);
+        when(taskRepository.show()).thenReturn(tasksCreated);
         Assert.assertEquals(retrieveAllTasksService.execute().size(), 10);
     }
 
-    public static List<Task> generateRandomTasks(int numberOfTasks) {
-        List<Task> tasks = new ArrayList<>();
+    public static List<TaskDTO> generateRandomTasks(int numberOfTasks) {
+        List<TaskDTO> tasks = new ArrayList<>();
 
         String[] possibleTitles = {"Task 1", "Task 2", "Task 3", "Task 4", "Task 5"};
         String[] possibleDescriptions = {"Description 1", "Description 2", "Description 3", "Description 4", "Description 5"};
@@ -48,7 +52,10 @@ public class RetrieveAllTasksServiceTest {
         for (int i = 0; i < numberOfTasks; i++) {
             String possibleTitle = possibleTitles[random.nextInt(possibleTitles.length)];
             String possibleDescription = possibleDescriptions[random.nextInt(possibleDescriptions.length)];
-            tasks.add(new Task(new TaskDTO(possibleTitle, possibleDescription)));
+            TaskDTO dtoUsedToCreateTask = new TaskDTO(possibleTitle, possibleDescription);
+            Task taskCreated = new Task(dtoUsedToCreateTask);
+            
+            tasks.add(new TaskDTO(taskCreated));
         }
 
         return tasks;

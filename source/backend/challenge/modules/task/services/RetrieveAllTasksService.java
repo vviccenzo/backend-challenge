@@ -1,5 +1,6 @@
 package backend.challenge.modules.task.services;
 
+import backend.challenge.modules.task.dtos.TaskDTO;
 import backend.challenge.modules.task.models.Task;
 import backend.challenge.modules.task.repositories.ITaskRepository;
 
@@ -19,7 +20,7 @@ public class RetrieveAllTasksService implements IRetrieveAllTasksService {
 	}
 	
 	@Override
-	public List<Task> execute() {
+	public List<TaskDTO> execute() {
 		return this.taskRepository.show();
 	}
 

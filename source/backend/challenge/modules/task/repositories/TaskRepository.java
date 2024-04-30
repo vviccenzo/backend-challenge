@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Singleton
 public class TaskRepository implements ITaskRepository {
@@ -16,24 +17,25 @@ public class TaskRepository implements ITaskRepository {
 	private final List<Task> tasks = new ArrayList<>();
 
 	@Override
-	public Task index(Long taskId) {
-		return findTaskById(taskId).orElseThrow(() -> new RuntimeException("Task with id: " + taskId + " not found."));
+	public TaskDTO index(Long taskId) {
+		Task task = findTaskById(taskId).orElseThrow(() -> new RuntimeException("Task with id: " + taskId + " not found."));
+		return new TaskDTO(task);
 	}
 
 	@Override
-	public List<Task> show() {
-		return tasks;
+	public List<TaskDTO> show() {
+		return tasks.stream().map(TaskDTO::new).collect(Collectors.toList());
 	}
 
 	@Override
-	public Task create(TaskDTO taskDTO) {
+	public TaskDTO create(TaskDTO taskDTO) {
 		Task task = new Task(taskDTO);
 		tasks.add(task);
-		return task;
+		return new TaskDTO(task);
 	}
 
 	@Override
-	public Task update(TaskDTO taskDTO, Long taskId) {
+	public TaskDTO update(TaskDTO taskDTO, Long taskId) {
 		tasks.stream().filter(task -> task.getId().equals(taskId)).forEach(task -> {
 			task.setDescription(taskDTO.getDescription());
 			task.setTitle(taskDTO.getTitle());
@@ -47,7 +49,7 @@ public class TaskRepository implements ITaskRepository {
 	}
 
 	@Override
-	public Task updateTaskProgress(Long taskId, TaskProgressView taskProgressView) {
+	public TaskDTO updateTaskProgress(Long taskId, TaskProgressView taskProgressView) {
 		boolean isProgressValid = taskProgressView.validateIfProgressIsValid();
 		if(!isProgressValid) {
 			throw new RuntimeException("Progress % invalid.");

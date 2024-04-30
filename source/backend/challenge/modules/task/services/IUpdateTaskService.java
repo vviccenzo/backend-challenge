@@ -5,6 +5,6 @@ import backend.challenge.modules.task.models.Task;
 
 public interface IUpdateTaskService {
 
-	Task execute(TaskDTO task, Long taskId);
+	TaskDTO execute(TaskDTO task, Long taskId);
 
 }

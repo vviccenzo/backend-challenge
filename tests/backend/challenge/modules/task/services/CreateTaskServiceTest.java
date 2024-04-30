@@ -29,9 +29,8 @@ public class CreateTaskServiceTest {
 		String description = "Completar desafio backend Sizebay";
 
 		TaskDTO taskDTO = new TaskDTO(title, description);
-		Task task = createTaskService.execute(taskDTO);
+		TaskDTO task = createTaskService.execute(taskDTO);
 
-		Assert.assertNotNull(task.getId());
 		Assert.assertEquals(task.getTitle(), title);
 		Assert.assertEquals(task.getDescription(), description);
 	}

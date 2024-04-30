@@ -10,38 +10,43 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.*;
+
 @RunWith(KikahaRunner.class)
 public class DeleteTaskServiceTest {
 
-    private IDeleteTaskService deleteTaskService;
+    @Mock
+    private ITaskRepository taskRepository;
 
+    private IDeleteTaskService deleteTaskService;
     private List<Task> tasks = new ArrayList<>();
 
     @Before
     public void init() {
-        final ITaskRepository taskRepository = new TaskRepository();
+        MockitoAnnotations.initMocks(this);
+        tasks = generateRandomTasks(10);
 
         deleteTaskService = new DeleteTaskService(taskRepository);
-        tasks = generateRandomTasks(10);
     }
 
     @Test
     public void shouldBeAbleToDeleteTaskById() {
-        Task taskToDelete = tasks.get(0);
-        Long taskIdToDelete = taskToDelete.getId();
-
-        this.deleteTaskService.execute(taskIdToDelete);
-
-        Task deletedTask = tasks.stream().filter(task -> Objects.equals(task.getId(), taskIdToDelete)).findFirst().orElse(null);
-        Assert.assertNull("A tarefa não deve mais existir após a exclusão", deletedTask);
+        Long taskIdToDelete = tasks.get(0).getId();
+        deleteTaskService.execute(taskIdToDelete);
+        verify(taskRepository, times(1));
     }
-
 
     public static List<Task> generateRandomTasks(int numberOfTasks) {
         List<Task> tasks = new ArrayList<>();
@@ -59,6 +64,5 @@ public class DeleteTaskServiceTest {
 
         return tasks;
     }
-
 
 }

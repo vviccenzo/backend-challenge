@@ -5,6 +5,6 @@ import backend.challenge.modules.task.models.Task;
 
 public interface ICreateTaskService {
 
-	Task execute(TaskDTO taskDTO);
+	TaskDTO execute(TaskDTO taskDTO);
 
 }
